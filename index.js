@@ -1,4 +1,8 @@
-const { Client, IntentsBitField, ActivityType } = require('discord.js')
+const {
+    Client,
+    IntentsBitField,
+    ActivityType
+} = require('discord.js')
 const client = new Client({
     intents: [
         IntentsBitField.Flags.Guilds,
@@ -22,8 +26,6 @@ client.on('ready', () => {
         name: "myself being coded",
         type: ActivityType.Watching
     })
-
-    client.user.setStatus('dnd')
 })
 
 client.login(process.env.TOKEN)
