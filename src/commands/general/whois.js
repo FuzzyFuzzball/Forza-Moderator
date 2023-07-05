@@ -1,5 +1,5 @@
 const { CommandType } = require('wokcommands')
-const { EmbedBuilder, ApplicationCommandOptionType, Embed } = require('discord.js')
+const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js')
 const { color } = require("../../cfg/cfg.json")
 
 module.exports = {
@@ -17,7 +17,7 @@ module.exports = {
         },
         {
             name: 'visible',
-            description: 'Will the command be visible to the channel?',
+            description: 'Will the command be visible to the channel? (Default: True)',
             required: false,
             type: ApplicationCommandOptionType.String,
             choices: [
