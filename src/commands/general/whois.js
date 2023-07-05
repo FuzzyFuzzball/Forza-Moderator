@@ -50,7 +50,8 @@ module.exports = {
         const reply = new EmbedBuilder()
         .setColor(color)
         .setTitle(`User ${userOption.username}'s info.`)
-        .addFields({
+        .addFields(
+        {
             name: 'Username',
             value: `${userOption.username}`,
             inline: true

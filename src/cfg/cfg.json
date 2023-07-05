@@ -1,4 +1,9 @@
 {
     "color": "FF8AF8",
-    "cancelcolor": "FF0000"
+    "cancelcolor": "FF0000",
+    "confirmcolor": "32CD32",
+
+
+
+    "logchannel": "1122499469175439371"
 }
