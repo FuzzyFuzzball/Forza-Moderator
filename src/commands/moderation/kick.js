@@ -40,17 +40,16 @@ module.exports = {
         },
     ],
 
-    callback: async ({ interaction, user }) => {
-        const userOption = interaction.options.getUser('user');
-        const member = await interaction.guild.members.fetch(userOption.id)
+    callback: async ({ interaction, user, client }) => {
+        const userOption = interaction.options.getMember('user');
         const reasonOption = interaction.options.getString('reason')
         const visibleOption = interaction.options.getString('visible')
 
-        if (!member) {
+        if (!userOption) {
             const errormsg = new EmbedBuilder()
             .setColor(cancelcolor)
             .setTitle(`Error`)
-            .setDescription(`User "${member}", doesn't exist, therefore unable to kick the member for reason "${reasonOption}"`)
+            .setDescription(`User "${userOption}", doesn't exist, therefore unable to kick the member for reason "${reasonOption}"`)
 
             interaction.reply({
                 embeds: [errormsg],
@@ -60,11 +59,11 @@ module.exports = {
             return
         }
 
-        if (!member.kickable) {
+        if (!userOption.kickable) {
             const errormsg = new EmbedBuilder()
             .setColor(cancelcolor)
             .setTitle(`Error`)
-            .setDescription(`User "${member}", is not able to be kicked, therefore the command hasn't kicked the member for reason "${reasonOption}"`)
+            .setDescription(`User "${userOption}", is not able to be kicked, therefore the command hasn't kicked the member for reason "${reasonOption}"`)
 
             interaction.reply({
                 embeds: [errormsg],
@@ -96,8 +95,14 @@ module.exports = {
         const row = new ActionRowBuilder()
         .addComponents(confirm, cancel)
 
+        const responseembed = new EmbedBuilder()
+        .setColor(color)
+        .setTitle(`Kick Member`)
+        .setDescription(`Are you sure you would like to kick ${userOption} for ${reasonOutput}`)
+
+
         const response = await interaction.reply({
-            content: `This is a test`,
+            embeds: [responseembed],
             components: [row],
             ephemeral: true,
         })
@@ -111,13 +116,13 @@ module.exports = {
                 .setColor(confirmcolor)
                 .setTitle(`Running Kick`)
                 .setDescription(`Kicking member now...`)
-                await confirmation.update({ embeds: [confirmembed], content: '', components: [] })
+                await confirmation.update({ embeds: [confirmembed], components: [] })
 
             } else if (confirmation.customId === 'cancel') {
                 const cancelembed = new EmbedBuilder()
                 .setTitle(`❌ Action Cancelled`)
                 .setColor(cancelcolor)
-                await confirmation.update({ embeds: [cancelembed], content: '', components: [] });
+                await confirmation.update({ embeds: [cancelembed], components: [] });
 
                 return
             }
@@ -125,7 +130,8 @@ module.exports = {
             const cancelembed = new EmbedBuilder()
             .setTitle(`❌ Confirmation not received within 1 minute, cancelling`)
             .setColor(cancelcolor)
-            await interaction.editReply({ content: '', components: [] });
+
+            await confirmation.update({ embeds: [cancelembed], components: [] });
 
             return
         }
@@ -133,24 +139,11 @@ module.exports = {
         const dmembed = new EmbedBuilder()
         .setColor(color)
         .setTitle('You have been kicked!')
-        .setDescription(`Dear ${member.user.username}, you have been kicked from Forza Trucking.\nReason: ${reasonOption}\nDon't worry! It is just a kick and you can join right back, however before you continue to be in our Discord please read over the rules and ensure that you understand them.\nIf you believe this is false, please feel free to open a ticket and one of our staff will take a look at the situation.`)
+        .setDescription(`Dear ${userOption}, you have been kicked from Forza Trucking.\nReason: ${reasonOption}\nDon't worry! It is just a kick and you can join right back, however before you continue to be in our Discord please read over the rules and ensure that you understand them.\nIf you believe this is false, please feel free to open a ticket and one of our staff will take a look at the situation.`)
 
-        const dmmember = await member.send(dmembed)
+        userOption.send({ embeds: [dmembed] })
 
-        let dmmemberOutput = '';
-        if(!dmmember) {
-            dmmemberOutput = 'false'
-
-            const confirmembed = new EmbedBuilder()
-            .setColor(confirmcolor)
-            .setTitle(`Running Kick`)
-            .setDescription(`Kicking member now...\nDM's closed...`)
-            await confirmation.update({ embeds: [confirmembed], content: '', components: [] })
-        } else {
-            dmmemberOutput = 'true'
-        }
-
-        member.kick({ reason: reasonOutput })
+        userOption.kick({ reason: reasonOutput })
 
         const logembed = new EmbedBuilder()
         .setColor(color)
@@ -158,17 +151,12 @@ module.exports = {
         .addFields(
             {
                 name: 'User',
-                value: member,
+                value: userOption,
                 inline: true,
             },
             {
                 name: 'Moderator',
                 value: `${interaction.user}`,
-                inline: true,
-            },
-            {
-                name: 'DMed?',
-                value: dmmemberOutput,
                 inline: true,
             },
             {
